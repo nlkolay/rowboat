@@ -1,5 +1,5 @@
 import pytest
-from boat import Rowboat, Oar
+from ..boat import Rowboat, Oar
 
 @pytest.fixture
 def test_boat():
