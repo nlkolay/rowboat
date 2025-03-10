@@ -109,6 +109,7 @@ class Rowboat:
 
     def stop(self):
         """Остановка лодки"""
+
         self._speed = 0.0
         for oar in self.oars:
             oar.set_angle(0)
