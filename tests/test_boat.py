@@ -1,25 +1,26 @@
-import pytest  
-from rowboat.boat import Oar, RowBoat  
+import pytest
+from boat import Rowboat, Oar
 
-@pytest.fixture  
-def boat():  
-    return RowBoat(Oar(2.0), Oar(2.0))  
+@pytest.fixture
+def test_boat():
+    oars = [Oar(2.5, "carbon") for _ in range(4)]
+    return Rowboat(oars, max_riders=4)
 
-def test_forward_movement(boat):  
-    boat.oar_left.angle = 90  
-    boat.oar_right.angle = 90  
-    boat.update_movement()  
-    assert boat.speed > 0, "Лодка не движется вперед"  
+def test_basic_rowing(test_boat):
+    test_boat.row(power=1.0, riders=2)
+    assert 1.6 < test_boat.speed < 1.9  # Проверка диапазона скорости
 
-def test_left_turn(boat):  
-    boat.oar_left.angle = 0  
-    boat.oar_right.angle = 90  
-    initial_dir = boat.direction  
-    boat.update_movement()  
-    assert boat.direction < initial_dir, "Лодка не поворачивает влево"  
+def test_emergency_stop(test_boat):
+    test_boat.row(1.0, 4)
+    test_boat.stop()
+    assert test_boat.speed == 0.0
+    assert all(oar.angle == 0 for oar in test_boat.oars)
 
-def test_stop(boat):  
-    boat.oar_left.angle = 0  
-    boat.oar_right.angle = 0  
-    boat.update_movement()  
-    assert boat.speed == 0, "Лодка не останавливается"  
+def test_steering(test_boat):
+    test_boat.steer(45)
+    test_boat.steer(90)
+    assert test_boat.get_status()['direction'] == 135.0
+
+def test_invalid_riders(test_boat):
+    with pytest.raises(ValueError):
+        test_boat.row(1.0, 5)
